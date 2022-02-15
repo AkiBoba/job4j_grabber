@@ -65,9 +65,7 @@ public class AlertRabbit {
             System.out.println("Rabbit runs here ...");
             Connection connect = (Connection) context.getJobDetail().getJobDataMap().get("connect");
             try (PreparedStatement ps = connect.prepareStatement(
-                    "insert into rabbit(created_date) values (?);")
-                    )
-                {
+                    "insert into rabbit(created_date) values (?);")) {
                 ps.setLong(1, System.currentTimeMillis());
                 ps.execute();
             } catch (Exception e) {
