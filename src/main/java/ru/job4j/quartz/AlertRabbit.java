@@ -54,22 +54,31 @@ public class AlertRabbit {
         }
     }
 
-    public static class Rabbit implements Job {
+    public static class Rabbit implements Job, AutoCloseable {
 
         public Rabbit() {
             System.out.println(hashCode());
         }
 
+        Connection connect;
+
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
             System.out.println("Rabbit runs here ...");
-            Connection connect = (Connection) context.getJobDetail().getJobDataMap().get("connect");
+            connect = (Connection) context.getJobDetail().getJobDataMap().get("connect");
             try (PreparedStatement ps = connect.prepareStatement(
                     "insert into rabbit(created_date) values (?);")) {
                 ps.setLong(1, System.currentTimeMillis());
                 ps.execute();
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void close() throws Exception {
+            if (connect != null) {
+                connect.close();
             }
         }
     }
