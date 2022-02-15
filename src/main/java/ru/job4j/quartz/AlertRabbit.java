@@ -2,18 +2,32 @@ package ru.job4j.quartz;
 
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
     public static void main(String[] args) {
+        String period = null;
+        try (InputStream in = AlertRabbit.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
+        Properties config = new Properties();
+        config.load(in);
+        period = config.getProperty("rabbit.interval");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         try {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDetail job = newJob(Rabbit.class).build();
+            assert period != null;
             SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(10)
+                    .withIntervalInSeconds(Integer.parseInt(period))
                     .repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()
