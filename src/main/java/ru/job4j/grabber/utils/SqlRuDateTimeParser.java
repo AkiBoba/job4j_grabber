@@ -1,8 +1,8 @@
 package ru.job4j.grabber.utils;
 
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.HashMap;
+import java.time.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class SqlRuDateTimeParser implements DateTimeParser {
@@ -25,15 +25,48 @@ public class SqlRuDateTimeParser implements DateTimeParser {
     @Override
     public LocalDateTime parse(String parse) {
 
+        LocalDate date = null;
+        LocalTime time = null;
+        List<String> dates;
+        List<String> times;
+
         String string = parse;
         string = string.substring(string.indexOf(",") + 1);
         string = (parse.substring(0, parse.indexOf(","))).concat(string);
-        System.out.println(string);
-        return null;
-    }
 
-    public static void main(String[] args) {
-        SqlRuDateTimeParser str = new SqlRuDateTimeParser();
-        str.parse("2 дек 19, 22:29");
+        List<String> list = List.of(string.split(" "));
+
+        if (list.size() > 2) {
+            dates = list.subList(0, 3);
+            times = List.of(list.get(3).split(":"));
+            date = LocalDate.of(Integer.parseInt("20".concat(dates.get(2))),
+                    Integer.parseInt(MONTHS.get(dates.get(1))),
+                    Integer.parseInt(dates.get(0)));
+            time = LocalTime.of(Integer.parseInt(times.get(0)),
+                    Integer.parseInt(times.get(1)));
+        } else {
+            switch (list.get(0)) {
+                case ("сегодня") -> {
+                    date = LocalDate.now();
+                    times = List.of(list.get(1).split(":"));
+                    time = LocalTime.of(Integer.parseInt(times.get(0)),
+                            Integer.parseInt(times.get(1)));
+                }
+                case ("вчера") -> {
+                    date = LocalDate.now().minusDays(1);
+                    times = List.of(list.get(1).split(":"));
+                    time = LocalTime.of(Integer.parseInt(times.get(0)),
+                            Integer.parseInt(times.get(1)));
+                }
+                default -> {
+                    break;
+                }
+            }
+        }
+        assert date != null;
+        return LocalDateTime.of(
+                date,
+                time
+            );
     }
 }
