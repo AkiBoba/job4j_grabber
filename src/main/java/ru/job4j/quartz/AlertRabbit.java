@@ -14,6 +14,7 @@ import static org.quartz.SimpleScheduleBuilder.*;
 public class AlertRabbit {
     public static void main(String[] args) {
 
+        String period = null;
         Connection connect;
 
         try (InputStream in = AlertRabbit
@@ -22,12 +23,17 @@ public class AlertRabbit {
                 .getResourceAsStream("rabbit.properties")) {
             Properties config = new Properties();
             config.load(in);
-            Class.forName(config.getProperty("driver-class-name"));
-            connect = DriverManager.getConnection(
-                    config.getProperty("url"),
-                    config.getProperty("username"),
-                    config.getProperty("password")
-            );
+            period = config.getProperty("rabbit.interval");
+            try {
+                Class.forName(config.getProperty("driver-class-name"));
+                connect = DriverManager.getConnection(
+                        config.getProperty("url"),
+                        config.getProperty("username"),
+                        config.getProperty("password")
+                );
+            } finally {
+                System.out.println("Connection is on");
+            }
             try {
                 Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
                 scheduler.start();
@@ -36,8 +42,9 @@ public class AlertRabbit {
                 JobDetail job = newJob(Rabbit.class)
                         .usingJobData(data)
                         .build();
+                assert period != null;
                 SimpleScheduleBuilder times = simpleSchedule()
-                        .withIntervalInSeconds(5)
+                        .withIntervalInSeconds(Integer.parseInt(period))
                         .repeatForever();
                 Trigger trigger = newTrigger()
                         .startNow()
