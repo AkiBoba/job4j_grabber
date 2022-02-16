@@ -66,7 +66,10 @@ public class AlertRabbit {
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
             System.out.println("Rabbit runs here ...");
-            connect = (Connection) context.getJobDetail().getJobDataMap().get("connect");
+            Connection connect = (Connection) context
+                    .getJobDetail()
+                    .getJobDataMap()
+                    .get("connect");
             try (PreparedStatement ps = connect.prepareStatement(
                     "insert into rabbit(created_date) values (?);")) {
                 ps.setLong(1, System.currentTimeMillis());
