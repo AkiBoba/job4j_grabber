@@ -1,0 +1,39 @@
+package ru.job4j.grabber.utils;
+
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.HashMap;
+import java.util.Map;
+
+public class SqlRuDateTimeParser implements DateTimeParser {
+
+    private static final Map<String, String> MONTHS = Map.ofEntries(
+            Map.entry("янв", "01"),
+            Map.entry("фев", "02"),
+            Map.entry("мар", "03"),
+            Map.entry("апр", "04"),
+            Map.entry("май", "05"),
+            Map.entry("июн", "06"),
+            Map.entry("июл", "07"),
+            Map.entry("авг", "08"),
+            Map.entry("сен", "09"),
+            Map.entry("окт", "10"),
+            Map.entry("ноя", "11"),
+            Map.entry("дек", "12")
+    );
+
+    @Override
+    public LocalDateTime parse(String parse) {
+
+        String string = parse;
+        string = string.substring(string.indexOf(",") + 1);
+        string = (parse.substring(0, parse.indexOf(","))).concat(string);
+        System.out.println(string);
+        return null;
+    }
+
+    public static void main(String[] args) {
+        SqlRuDateTimeParser str = new SqlRuDateTimeParser();
+        str.parse("2 дек 19, 22:29");
+    }
+}
