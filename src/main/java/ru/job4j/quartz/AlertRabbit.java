@@ -55,13 +55,11 @@ public class AlertRabbit {
         }
     }
 
-    public static class Rabbit implements Job, AutoCloseable {
+    public static class Rabbit implements Job {
 
         public Rabbit() {
             System.out.println(hashCode());
         }
-
-        Connection connect;
 
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -76,13 +74,6 @@ public class AlertRabbit {
                 ps.execute();
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void close() throws Exception {
-            if (connect != null) {
-                connect.close();
             }
         }
     }
