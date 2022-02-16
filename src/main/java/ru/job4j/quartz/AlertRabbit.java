@@ -14,8 +14,7 @@ import static org.quartz.SimpleScheduleBuilder.*;
 public class AlertRabbit {
     public static void main(String[] args) {
 
-        String period = null;
-        Connection connect;
+        String period;
 
         try (InputStream in = AlertRabbit
                 .class
@@ -24,38 +23,33 @@ public class AlertRabbit {
             Properties config = new Properties();
             config.load(in);
             period = config.getProperty("rabbit.interval");
-            try {
                 Class.forName(config.getProperty("driver-class-name"));
-                connect = DriverManager.getConnection(
+            try (Connection connect = DriverManager.getConnection(
                         config.getProperty("url"),
                         config.getProperty("username"),
                         config.getProperty("password")
-                );
-            } finally {
-                System.out.println("Connection is on");
-            }
-            try {
-                Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-                scheduler.start();
-                JobDataMap data = new JobDataMap();
-                data.put("connect", connect);
-                JobDetail job = newJob(Rabbit.class)
-                        .usingJobData(data)
-                        .build();
-                assert period != null;
-                SimpleScheduleBuilder times = simpleSchedule()
-                        .withIntervalInSeconds(Integer.parseInt(period))
-                        .repeatForever();
-                Trigger trigger = newTrigger()
-                        .startNow()
-                        .withSchedule(times)
-                        .build();
-                scheduler.scheduleJob(job, trigger);
-                Thread.sleep(10000);
-                scheduler.shutdown();
-            } catch (Exception se) {
-                se.printStackTrace();
-            }
+                )) {
+                    Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+                    scheduler.start();
+                    JobDataMap data = new JobDataMap();
+                    data.put("connect", connect);
+                    JobDetail job = newJob(Rabbit.class)
+                            .usingJobData(data)
+                            .build();
+                    assert period != null;
+                    SimpleScheduleBuilder times = simpleSchedule()
+                            .withIntervalInSeconds(Integer.parseInt(period))
+                            .repeatForever();
+                    Trigger trigger = newTrigger()
+                            .startNow()
+                            .withSchedule(times)
+                            .build();
+                    scheduler.scheduleJob(job, trigger);
+                    Thread.sleep(10000);
+                    scheduler.shutdown();
+                } catch (Exception se) {
+                    se.printStackTrace();
+                }
         } catch (Exception e) {
             e.printStackTrace();
         }
