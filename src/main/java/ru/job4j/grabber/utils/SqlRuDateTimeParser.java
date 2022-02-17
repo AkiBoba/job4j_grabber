@@ -1,9 +1,6 @@
 package ru.job4j.grabber.utils;
 
 import java.time.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SqlRuDateTimeParser implements DateTimeParser {
@@ -36,7 +33,7 @@ public class SqlRuDateTimeParser implements DateTimeParser {
         String[] arrayList = parse.split(", ");
         time = LocalTime.of(
                 Integer.parseInt(arrayList[1].split(":")[0]),
-                Integer.parseInt(arrayList[1].split(":")[1])
+                Integer.parseInt(arrayList[1].split(":")[1].substring(0, 1))
         );
 
         if (arrayList[0].split(" ").length > 2) {
@@ -51,5 +48,4 @@ public class SqlRuDateTimeParser implements DateTimeParser {
                 time
         );
     }
-
 }

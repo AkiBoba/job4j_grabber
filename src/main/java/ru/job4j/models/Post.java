@@ -1,5 +1,11 @@
 package ru.job4j.models;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import ru.job4j.grabber.utils.SqlRuDateTimeParser;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -25,6 +31,26 @@ public class Post {
         this.created = created;
     }
 
+    public Post(String url) throws IOException {
+        this.link = url;
+        try {
+            parse(url);
+        } catch (IOException e) {
+            throw new IOException("Ошибка парсинга ссылки.");
+        }
+    }
+
+    private void parse(String url) throws IOException {
+        Document doc = Jsoup.connect(url).get();
+        Element first = doc.selectFirst(".msgTable");
+        this.title = first.select(".messageHeader").get(0).ownText();
+        this.description = first.select(".msgBody").get(1).ownText();
+        var date = first.select(".msgFooter").get(0).ownText().substring(0, 16);
+        System.out.println(date);
+        SqlRuDateTimeParser parser = new SqlRuDateTimeParser();
+        this.created = parser.parse(date);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -47,10 +73,11 @@ public class Post {
     public String toString() {
         return "Post{"
                 + "id=" + id
-                + ", title='" + title
-                + '\'' + ", link='" + link
-                + '\'' + ", description='" + description
-                + '\'' + ", created=" + created
+                + System.lineSeparator()
+                + "title='" + title
+                + System.lineSeparator() + "link='" + link
+                + System.lineSeparator() + "description='" + description
+                + System.lineSeparator() + "created=" + created
                 + '}';
     }
 
@@ -96,5 +123,12 @@ public class Post {
 
     public Post getPost() {
         return null;
+    }
+
+    public static void main(String[] args) throws IOException {
+        Post p = new Post("https://www.sql.ru/forum/1342199/sre-c-relokaciey-na-kipr");
+        System.out.println(p);
+        Post newPost = new Post("https://www.sql.ru/forum/1342252/vakansii-oebs-udalenka-180t-r");
+        System.out.println(newPost);
     }
 }
