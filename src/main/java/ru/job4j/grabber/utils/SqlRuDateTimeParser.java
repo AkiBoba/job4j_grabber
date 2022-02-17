@@ -2,6 +2,7 @@ package ru.job4j.grabber.utils;
 
 import java.time.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +26,8 @@ public class SqlRuDateTimeParser implements DateTimeParser {
     @Override
     public LocalDateTime parse(String parse) {
 
-        LocalDate date = null;
-        LocalTime time = null;
+        LocalDate date;
+        LocalTime time;
         List<String> dates;
         List<String> times;
 
@@ -45,28 +46,30 @@ public class SqlRuDateTimeParser implements DateTimeParser {
             time = LocalTime.of(Integer.parseInt(times.get(0)),
                     Integer.parseInt(times.get(1)));
         } else {
-            switch (list.get(0)) {
-                case ("сегодня") -> {
-                    date = LocalDate.now();
-                    times = List.of(list.get(1).split(":"));
-                    time = LocalTime.of(Integer.parseInt(times.get(0)),
-                            Integer.parseInt(times.get(1)));
-                }
-                case ("вчера") -> {
-                    date = LocalDate.now().minusDays(1);
-                    times = List.of(list.get(1).split(":"));
-                    time = LocalTime.of(Integer.parseInt(times.get(0)),
-                            Integer.parseInt(times.get(1)));
-                }
-                default -> {
-                    break;
-                }
+            int day = 0;
+            times = List.of(list.get(1).split(":"));
+            time = LocalTime.of(Integer.parseInt(times.get(0)),
+                    Integer.parseInt(times.get(1)));
+            if ("вчера".equals(list.get(0))) {
+                day = 1;
             }
+            date = LocalDate.now().minusDays(day);
         }
-        assert date != null;
         return LocalDateTime.of(
                 date,
                 time
-            );
+        );
+    }
+
+    private Map<LocalDate, LocalTime>  dateTame(int day, List<String> list) {
+        Map<LocalDate, LocalTime> map = new HashMap<>();
+        List<String> times = List.of(list.get(1).split(":"));
+        map.put(LocalDate.now().minusDays(day),
+                LocalTime.of(
+                        Integer.parseInt(times.get(0)),
+                Integer.parseInt(times.get(1))
+                )
+        );
+        return map;
     }
 }
