@@ -8,6 +8,11 @@ import java.util.Map;
 
 public class SqlRuDateTimeParser implements DateTimeParser {
 
+    private static final Map<String, LocalDate> DAY = Map.ofEntries(
+            Map.entry("сегодня", LocalDate.now()),
+            Map.entry("вчера", LocalDate.now().minusDays(1))
+    );
+
     private static final Map<String, String> MONTHS = Map.ofEntries(
             Map.entry("янв", "01"),
             Map.entry("фев", "02"),
@@ -28,32 +33,18 @@ public class SqlRuDateTimeParser implements DateTimeParser {
 
         LocalDate date;
         LocalTime time;
-        List<String> dates;
-        List<String> times;
+        String[] arrayList = parse.split(", ");
+        time = LocalTime.of(
+                Integer.parseInt(arrayList[1].split(":")[0]),
+                Integer.parseInt(arrayList[1].split(":")[1])
+        );
 
-        String string = parse;
-        string = string.substring(string.indexOf(",") + 1);
-        string = (parse.substring(0, parse.indexOf(","))).concat(string);
-
-        List<String> list = List.of(string.split(" "));
-
-        if (list.size() > 2) {
-            dates = list.subList(0, 3);
-            times = List.of(list.get(3).split(":"));
-            date = LocalDate.of(Integer.parseInt("20".concat(dates.get(2))),
-                    Integer.parseInt(MONTHS.get(dates.get(1))),
-                    Integer.parseInt(dates.get(0)));
-            time = LocalTime.of(Integer.parseInt(times.get(0)),
-                    Integer.parseInt(times.get(1)));
+        if (arrayList[0].split(" ").length > 2) {
+            date = LocalDate.of(Integer.parseInt("20".concat(arrayList[0].split(" ")[2])),
+                    Integer.parseInt(MONTHS.get(arrayList[0].split(" ")[1])),
+                    Integer.parseInt(arrayList[0].split(" ")[0]));
         } else {
-            int day = 0;
-            times = List.of(list.get(1).split(":"));
-            time = LocalTime.of(Integer.parseInt(times.get(0)),
-                    Integer.parseInt(times.get(1)));
-            if ("вчера".equals(list.get(0))) {
-                day = 1;
-            }
-            date = LocalDate.now().minusDays(day);
+            date = DAY.get(arrayList[0]);
         }
         return LocalDateTime.of(
                 date,
@@ -61,15 +52,4 @@ public class SqlRuDateTimeParser implements DateTimeParser {
         );
     }
 
-    private Map<LocalDate, LocalTime>  dateTame(int day, List<String> list) {
-        Map<LocalDate, LocalTime> map = new HashMap<>();
-        List<String> times = List.of(list.get(1).split(":"));
-        map.put(LocalDate.now().minusDays(day),
-                LocalTime.of(
-                        Integer.parseInt(times.get(0)),
-                Integer.parseInt(times.get(1))
-                )
-        );
-        return map;
-    }
 }

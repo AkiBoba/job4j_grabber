@@ -8,8 +8,13 @@ import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 
 public class SqlRuParse {
     public static void main(String[] args) throws Exception {
+        String url = "https://www.sql.ru/forum/job-offers";
         SqlRuDateTimeParser sqlRuDateTimeParser = new SqlRuDateTimeParser();
-        Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
+        for (int page = 0; page < 6; page++) {
+            if (page > 0) {
+                url.concat(String.format("/%s", page));
+            }
+        Document doc = Jsoup.connect(url).get();
         Elements row = doc.select(".postslisttopic");
         for (Element td : row) {
             Element href = td.child(0);
@@ -18,7 +23,8 @@ public class SqlRuParse {
             System.out.println(href.text());
             System.out.println(sqlRuDateTimeParser.parse(
                     parent.child(5).text())
-            );
+                );
+            }
         }
     }
 }
