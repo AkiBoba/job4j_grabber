@@ -7,6 +7,7 @@ import org.jsoup.select.Elements;
 import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 
 public class SqlRuParse {
+
     public static void main(String[] args) throws Exception {
         String url = "https://www.sql.ru/forum/job-offers";
         SqlRuDateTimeParser sqlRuDateTimeParser = new SqlRuDateTimeParser();
