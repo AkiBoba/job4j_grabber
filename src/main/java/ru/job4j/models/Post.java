@@ -93,4 +93,8 @@ public class Post {
     public void setCreated(LocalDateTime created) {
         this.created = created;
     }
+
+    public Post getPost() {
+        return null;
+    }
 }
