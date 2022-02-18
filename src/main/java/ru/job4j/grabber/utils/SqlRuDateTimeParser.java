@@ -31,6 +31,7 @@ public class SqlRuDateTimeParser implements DateTimeParser {
         LocalDate date;
         LocalTime time;
         String[] arrayList = parse.split(", ");
+        int indSubstr = arrayList[1].split(":")[1].indexOf("[");
         time = LocalTime.of(
                 Integer.parseInt(arrayList[1].split(":")[0]),
                 Integer.parseInt(arrayList[1].split(":")[1].substring(0, 1))

@@ -7,27 +7,28 @@ import org.jsoup.select.Elements;
 import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 import ru.job4j.models.Post;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class SqlRuParse {
 
-    public static void main(String[] args) throws Exception {
+    static int countId = 0;
 
-        String url = "https://www.sql.ru/forum/job-offers/";
-        SqlRuDateTimeParser sqlRuDateTimeParser = new SqlRuDateTimeParser();
-        for (int page = 1; page < 6; page++) {
-            Document doc = Jsoup.connect(String.format(url + "%s", page)).get();
-            Elements row = doc.select(".postslisttopic");
-            for (Element td : row) {
-                Element href = td.child(0);
-                Element parent = td.parent();
-                System.out.println(href.attr("href"));
+    public static Post parse(String url) throws IOException {
+        Document doc = Jsoup.connect(url).get();
+        Element first = doc.selectFirst(".msgTable");
+        String title = first.select(".messageHeader").get(0).ownText();
+        String description = first.select(".msgBody").get(1).ownText();
+        String date = first.select(".msgFooter").get(0).ownText();
+        SqlRuDateTimeParser parser = new SqlRuDateTimeParser();
+        LocalDateTime created = parser.parse(date.substring(0, date.indexOf("[")));
+        return new Post(countId++, title, url, description, created);
+    }
 
-                System.out.println(href.text());
-                System.out.println(sqlRuDateTimeParser.parse(
-                        parent.child(5).text())
-                    );
-            }
-        }
+    public static void main(String[] args) throws IOException {
+        Post newPost1 = parse("https://www.sql.ru/forum/1342199/sre-c-relokaciey-na-kipr");
+        System.out.println(newPost1);
+        Post newPost2 = parse("https://www.sql.ru/forum/1342252/vakansii-oebs-udalenka-180t-r");
+        System.out.println(newPost2);
     }
 }
