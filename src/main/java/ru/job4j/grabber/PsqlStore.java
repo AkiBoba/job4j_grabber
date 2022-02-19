@@ -1,7 +1,12 @@
 package ru.job4j.grabber;
 
+import ru.job4j.grabber.utils.DateTimeParser;
+import ru.job4j.grabber.utils.SqlRuDateTimeParser;
+import ru.job4j.html.SqlRuParse;
 import ru.job4j.models.Post;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -42,18 +47,13 @@ public class PsqlStore implements Store, AutoCloseable {
     @Override
     public void save(Post post) {
         try (PreparedStatement ps = cnn.prepareStatement(
-                "insert into items(name, text, link, created) values (?, ?, ?, ?);",
-                Statement.RETURN_GENERATED_KEYS)) {
+                "insert into post(name, text, link, created) values (?, ?, ?, ?);")
+        ) {
             ps.setString(1, post.getTitle());
             ps.setString(2, post.getDescription());
             ps.setString(3, post.getLink());
             ps.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
             ps.execute();
-            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    post.setId(generatedKeys.getInt(1));
-                }
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,7 +80,7 @@ public class PsqlStore implements Store, AutoCloseable {
     public Post findById(int id) {
         Post item = null;
         try (PreparedStatement ps = cnn.prepareStatement(
-                "select * from items where id = ?;")) {
+                "select * from post where id = ?;")) {
             ps.setInt(1, id);
             try (ResultSet res = ps.executeQuery()) {
                 if (res.next()) {
@@ -107,5 +107,22 @@ public class PsqlStore implements Store, AutoCloseable {
 
     private LocalDateTime getLocalDateTime(Timestamp timestamp) {
         return timestamp.toLocalDateTime();
+    }
+
+    public static void main(String[] args) throws SQLException, IOException {
+        String url = "https://www.sql.ru/forum/job-offers/";
+        DateTimeParser dateTimeParser = new SqlRuDateTimeParser();
+        Parse parse = new SqlRuParse(dateTimeParser);
+        List<Post> posts = parse.list(url);
+        InputStream in = PsqlStore
+                .class
+                .getClassLoader()
+                .getResourceAsStream("app.properties");
+            Properties conf = new Properties();
+            conf.load(in);
+        Store store = new PsqlStore(conf);
+        posts.forEach(store :: save);
+        System.out.println("first id : " + store.findById(34));
+        store.getAll().forEach(System.out :: println);
     }
 }
