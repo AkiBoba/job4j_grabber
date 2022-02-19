@@ -122,7 +122,7 @@ public class PsqlStore implements Store, AutoCloseable {
             conf.load(in);
         Store store = new PsqlStore(conf);
         posts.forEach(store :: save);
-        System.out.println("first id : " + store.findById(34));
+        System.out.println("findById : " + store.findById(3));
         store.getAll().forEach(System.out :: println);
     }
 }
