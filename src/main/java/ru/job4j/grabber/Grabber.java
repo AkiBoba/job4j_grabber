@@ -33,7 +33,8 @@ public class Grabber implements Grab {
 
     public void cfg() throws IOException {
         InputStream in = null;
-        try {in = PsqlStore
+        try {
+            in = PsqlStore
                     .class
                     .getClassLoader()
                     .getResourceAsStream("app.properties");
