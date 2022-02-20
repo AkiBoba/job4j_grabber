@@ -18,7 +18,7 @@ import java.util.Properties;
  */
 public class PsqlStore implements Store, AutoCloseable {
 
-    Connection cnn;
+    private static Connection cnn;
 
     public PsqlStore(Properties cfg) {
         try {
@@ -111,14 +111,19 @@ public class PsqlStore implements Store, AutoCloseable {
 
     public static void main(String[] args) throws SQLException, IOException {
         String url = "https://www.sql.ru/forum/job-offers/";
+        InputStream in = null;
         DateTimeParser dateTimeParser = new SqlRuDateTimeParser();
         Parse parse = new SqlRuParse(dateTimeParser);
         List<Post> posts = parse.list(url);
-        InputStream in = PsqlStore
-                .class
-                .getClassLoader()
-                .getResourceAsStream("app.properties");
-            Properties conf = new Properties();
+        try {
+            in = PsqlStore
+                    .class
+                    .getClassLoader()
+                    .getResourceAsStream("app.properties");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Properties conf = new Properties();
             conf.load(in);
         Store store = new PsqlStore(conf);
         posts.forEach(store :: save);
