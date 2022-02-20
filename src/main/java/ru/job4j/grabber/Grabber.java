@@ -32,9 +32,15 @@ public class Grabber implements Grab {
     }
 
     public void cfg() throws IOException {
-        try (InputStream in = new FileInputStream(new File("app.properties"))) {
-            cfg.load(in);
+        InputStream in = null;
+        try {in = PsqlStore
+                    .class
+                    .getClassLoader()
+                    .getResourceAsStream("app.properties");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        cfg.load(in);
     }
 
     @Override
@@ -56,13 +62,12 @@ public class Grabber implements Grab {
     }
 
     public static class GrabJob implements Job {
-
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
             JobDataMap map = context.getJobDetail().getJobDataMap();
             Store store = (Store) map.get("store");
             Parse parse = (Parse) map.get("parse");
-            /* TODO impl logic */
+            parse.list("https://www.sql.ru/forum/job-offers/").forEach(store::save);
         }
     }
 
