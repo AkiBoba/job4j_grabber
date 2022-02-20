@@ -36,16 +36,13 @@ public class Grabber implements Grab {
     }
 
     public void cfg() throws IOException {
-        InputStream in = null;
-        try {
-            in = PsqlStore
+
+        try (InputStream in = PsqlStore
                     .class
                     .getClassLoader()
-                    .getResourceAsStream("app.properties");
-        } catch (Exception e) {
-            e.printStackTrace();
+                    .getResourceAsStream("app.properties")) {
+            cfg.load(in);
         }
-        cfg.load(in);
     }
 
     @Override
