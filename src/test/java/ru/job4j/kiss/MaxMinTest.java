@@ -1,6 +1,8 @@
 package ru.job4j.kiss;
 
 import junit.framework.TestCase;
+import org.junit.runners.Parameterized;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -12,6 +14,8 @@ import static org.junit.Assert.assertThat;
  * @author Vladimir Likhachev
  */
 public class MaxMinTest extends TestCase {
+
+    @Parameterized.Parameters
 
     public void testMax() {
         MaxMin maxMin = new MaxMin();
