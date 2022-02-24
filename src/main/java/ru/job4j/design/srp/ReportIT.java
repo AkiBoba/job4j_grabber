@@ -23,18 +23,19 @@ public class ReportIT implements Report {
 
     @Override
     public String generate(Predicate<Employee> filter) {
-        ReportEngine reportEngine = new ReportEngine(store);
-        return reportEngine.generate(filter);
-    }
-
-    public String generateWeb() {
         StringBuilder text = new StringBuilder();
         text.append("<head>Report for IT</head>");
-        for (String employee : generate(employee -> true)
-                .split(System.lineSeparator())) {
+        for (Employee employee : store.findBy(filter)) {
             text
                     .append("<body>")
-                    .append(employee)
+                    .append("Name; Hired; Fired; Salary;")
+                    .append("</body>")
+                    .append(System.lineSeparator())
+                    .append("<body>")
+                    .append(employee.getName()).append(";")
+                    .append(employee.getHired()).append(";")
+                    .append(employee.getFired()).append(";")
+                    .append(employee.getSalary()).append(";")
                     .append("</body>")
                     .append(System.lineSeparator());
         }
@@ -47,6 +48,6 @@ public class ReportIT implements Report {
         Employee worker = new Employee("Ivan", now, now, 100);
         store.add(worker);
         ReportIT engine = new ReportIT(store);
-        engine.generateWeb();
+        engine.generate(employee -> true);
     }
 }

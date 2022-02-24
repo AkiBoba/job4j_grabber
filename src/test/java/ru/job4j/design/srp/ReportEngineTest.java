@@ -45,7 +45,7 @@ public class ReportEngineTest {
                 .append(worker.getSalary()).append(";")
                 .append("</body>")
                 .append(System.lineSeparator());
-        assertThat(engine.generateWeb(), is(expect.toString()));
+        assertThat(engine.generate(employee -> true), is(expect.toString()));
     }
 
     @Test
