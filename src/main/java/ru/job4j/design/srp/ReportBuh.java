@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 public class ReportBuh implements Report {
 
     private Store store;
+    private int tax = 80;
 
     public ReportBuh(Store store) {
         this.store = store;
@@ -25,7 +26,7 @@ public class ReportBuh implements Report {
                     .append(employee.getName()).append(";")
                     .append(employee.getHired()).append(";")
                     .append(employee.getFired()).append(";")
-                    .append(employee.getSalary() / 80).append(";")
+                    .append(employee.getSalary() / tax).append(";")
                     .append(System.lineSeparator());
         }
         return text.toString();

@@ -26,6 +26,29 @@ public class ReportEngineTest {
     }
 
     @Test
+    public void whenITGenerated() {
+        MemStore store = new MemStore();
+        Calendar now = Calendar.getInstance();
+        Employee worker = new Employee("Ivan", now, now, 100);
+        store.add(worker);
+        ReportIT engine = new ReportIT(store);
+        StringBuilder expect = new StringBuilder()
+                .append("<head>Report for IT</head>")
+                .append("<body>")
+                .append("Name; Hired; Fired; Salary;")
+                .append("</body>")
+                .append(System.lineSeparator())
+                .append("<body>")
+                .append(worker.getName()).append(";")
+                .append(worker.getHired()).append(";")
+                .append(worker.getFired()).append(";")
+                .append(worker.getSalary()).append(";")
+                .append("</body>")
+                .append(System.lineSeparator());
+        assertThat(engine.generateWeb(), is(expect.toString()));
+    }
+
+    @Test
     public void whenBuhGenerated() {
         MemStore store = new MemStore();
         Calendar now = Calendar.getInstance();

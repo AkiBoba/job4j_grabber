@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.function.Predicate;
 
@@ -26,29 +27,18 @@ public class ReportIT implements Report {
         return reportEngine.generate(filter);
     }
 
-    public void generateWeb() {
-        new Thread(() -> {
-            try (ServerSocket server = new ServerSocket(9000)) {
-                while (!server.isClosed()) {
-                    Socket socket = server.accept();
-                    try (OutputStream out = socket.getOutputStream()) {
-                        out.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
-                        for (String employee : generate(employee -> true)
-                                .split(System.lineSeparator())) {
-                            out.write(employee
-                                    .getBytes(Charset.forName("Windows-1251")));
-                            out.write(System
-                                    .lineSeparator()
-                                    .getBytes());
-                        }
-                    } catch (IOException io) {
-                        io.printStackTrace();
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+    public String generateWeb() {
+        StringBuilder text = new StringBuilder();
+        text.append("<head>Report for IT</head>");
+        for (String employee : generate(employee -> true)
+                .split(System.lineSeparator())) {
+            text
+                    .append("<body>")
+                    .append(employee)
+                    .append("</body>")
+                    .append(System.lineSeparator());
+        }
+        return text.toString();
     }
 
     public static void main(String[] args) {
